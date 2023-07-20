@@ -1,11 +1,9 @@
 plugins {
-    id("kotlin")
+    id("dukat.conventions.kotlin-jvm")
 }
 
 dependencies {
-    implementation(project(":ast-common"))
-    implementation(project(":panic"))
-    implementation(project(":ts-model"))
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-common")
     testImplementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
