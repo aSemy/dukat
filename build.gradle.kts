@@ -1,10 +1,39 @@
+import dukat.utils.excludeGeneratedGradleDsl
 
 plugins {
-  id("dukat.conventions.base")
+    id("dukat.conventions.base")
+    idea
 }
 
 group = "org.kotlin.dukat"
 version = "0.6.0"
+
+
+idea {
+    module {
+        excludeGeneratedGradleDsl(layout)
+
+        excludeDirs.apply {
+            // exclude .gradle, IDE dirs from nested projects (e.g. example & template projects)
+            // so IntelliJ project-wide search isn't cluttered with irrelevant files
+            val excludedDirs = setOf(
+                ".idea",
+                ".gradle",
+                "build",
+                "gradle/wrapper",
+            )
+            addAll(
+                projectDir.walk()
+                    .filter { it.isDirectory }
+                    .filter { dir ->
+                        excludedDirs.any {
+                            dir.invariantSeparatorsPath.endsWith(it)
+                        }
+                    }
+            )
+        }
+    }
+}
 
 //allprojects {
 //  repositories {
@@ -48,7 +77,7 @@ version = "0.6.0"
 //      }
 //
 //      dependencies {
-//        implementation("org.jetbrains.kotlin:kotlin-stdlib:$gradle.kotlinVersion")
+//        implementation("org.jetbrains.kotlin:kotlin-stdlib:${libs.versions.kotlin.get()}")
 //      }
 //    }
 //

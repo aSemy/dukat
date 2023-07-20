@@ -1,4 +1,0 @@
-[NoInterfaceObject]
-interface A {
-
-};

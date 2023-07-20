@@ -3,7 +3,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation(projects.dukatModules.astCommon)
+    implementation(projects.dukatModules.corePanic)
+    implementation(projects.dukatModules.tsModel)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-common")
     testImplementation("org.jetbrains.kotlin:kotlin-test-annotations-common")

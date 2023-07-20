@@ -1,0 +1,98 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    java
+    id( "com.google.protobuf") version "0.9.4"
+}
+
+//def targetMainDir = "${project.buildDir}/generated/source/proto/main"
+//
+//def nodeModulesPath = "${project.buildDir}/ts-model-proto-npm"
+//
+//task prepareNpmPackage(type: Copy) {
+//    from "package.template.json"
+//    into nodeModulesPath
+//    rename { String fileName -> fileName.replace(".template", "") }
+//
+//    from "package-lock.json"
+//    into nodeModulesPath
+//}
+//
+//task execConfig {
+//    doLast {
+//        installNpmDependencies.commandLine  project(":node-distrib").config.nodePath, project(":node-distrib").config.npmPath, "ci"
+//    }
+//}
+//
+//task installNpmDependencies(dependsOn: [prepareNpmPackage, execConfig, ":node-distrib:config"], type: Exec) {
+//    workingDir nodeModulesPath
+//    errorOutput = new ByteArrayOutputStream()
+//    ignoreExitValue true
+//
+//    doLast {
+//        if (execResult.exitValue > 0) {
+//            throw new GradleException(errorOutput.toString())
+//        }
+//    }
+//}
+//
+//task copyGeneratedTs(type: Copy) {
+//    from "$targetMainDir/ts"
+//    into "$targetMainDir/js"
+//}
+//
+//dependencies {
+//    implementation("com.google.protobuf:protobuf-java:${libs.versions.protobufImplementation.get()}")
+//}
+//
+//sourceSets {
+//    generated {
+//        java.srcDir("$targetMainDir/java")
+//    }
+//
+//    main {
+//        proto {
+//            srcDirs = ["src"]
+//        }
+//
+//        java {
+//            srcDirs = ["$targetMainDir/java"]
+//        }
+//    }
+//}
+//
+//protobuf {
+//    plugins {
+//        ts {
+//            path = file("$nodeModulesPath/node_modules/ts-protoc-gen/bin/protoc-gen-ts")
+//
+//            if (OperatingSystem.current().isWindows()) {
+//                path = path + ".cmd"
+//            }
+//        }
+//    }
+//
+//    generateProtoTasks {
+//        all().each { task ->
+//            if(task.name == 'generateProto') {
+//                task.dependsOn = [installNpmDependencies]
+//                task.finalizedBy(copyGeneratedTs)
+//            }
+//
+//            task.builtins {
+//                js {
+//                    option "import_style=commonjs"
+//                    option "binary"
+//                }
+//            }
+//
+//            task.plugins {
+//                ts { }
+//            }
+//        }
+//    }
+//
+//    protoc {
+//        artifact = "com.google.protobuf:protoc:${libs.versions.protobufImplementation.get()}"
+//    }
+//}

@@ -16,9 +16,9 @@ pluginManagement {
 //    eachPlugin {
 //      def pluginId = requested . id . id
 //          if (pluginId in kotlin_plugins) {
-//            useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${gradle.kotlinVersion}")
+//            useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
 //          } else if (pluginId == "kotlinx-serialization") {
-//            useModule("org.jetbrains.kotlin:kotlin-serialization:${gradle.kotlinVersion}")
+//            useModule("org.jetbrains.kotlin:kotlin-serialization:${libs.versions.kotlin.get()}")
 //          } else if (pluginId == 'com.google.protobuf') {
 //            useModule("com.google.protobuf:protobuf-gradle-plugin:${gradle.protobufGradlePluginVersion}")
 //          }
@@ -133,73 +133,45 @@ include(
     ":dukat-modules:ast-common",
     ":dukat-modules:ast-model",
 
-    ":dukat-modules:logging",
-    ":dukat-modules:panic",
+    ":dukat-modules:core-compiler",
+    ":dukat-modules:core-descriptors",
+    ":dukat-modules:core-descriptors-v1-4-0",
+    ":dukat-modules:core-logging",
+    ":dukat-modules:core-owner-context",
+    ":dukat-modules:core-panic",
+    ":dukat-modules:core-stdlib",
+    ":dukat-modules:core-stdlib-generator",
+    ":dukat-modules:core-translator",
+    ":dukat-modules:core-translator-string",
 
+    ":dukat-modules:dukat-cli",
 
+    ":dukat-modules:idl-declarations",
+    ":dukat-modules:idl-lowerings",
+    ":dukat-modules:idl-models",
+    ":dukat-modules:idl-parser",
+    ":dukat-modules:idl-reference-resolver",
 
-//  ":ast-common",
-//  ":ast-model",
-//  ":command-line",
-//  ":compiler",
-//  ":descriptors",
-//  ":version-specific:descriptors-1.4.0",
-//  ":idl:idl-declarations",
-//  ":idl:idl-lowerings",
-//  ":idl:idl-models",
-//  ":idl:idl-parser",
-//  ":idl:idl-reference-resolver",
-//  ":abstract:itertools",
-//  ":js-module-statistics",
-//  ":javascript:js-translator",
-//  ":javascript:js-type-analysis",
-//  ":proto:kotlin-model-proto",
-//  ":logging",
-//  ":model-lowerings",
-//  ":model-lowerings-common",
-//  ":model-serialization",
-//  ":module-name-resolver",
-//  ":node-distrib",
-//  ":node-package",
-//  ":ownerContext",
-//  ":panic",
-//  ":stdlib",
-//  ":stdlib-generator",
-//  ":abstract:toposort",
-//  ":translator",
-//  ":translator-string",
-//  ":typescript:ts-ast-declarations",
-//  ":typescript:ts-converter",
-//  ":typescript:ts-lowerings",
-//  ":typescript:ts-model",
-//  ":typescript:ts-model-introduction",
-//  ":typescript:ts-model-proto",
-//  ":typescript:ts-nodes",
-//  ":typescript:ts-translator",
+    ":dukat-modules:js-translator",
+    ":dukat-modules:js-type-analysis",
+
+    ":dukat-modules:model-lowerings",
+    ":dukat-modules:model-lowerings-common",
+    ":dukat-modules:model-serialization",
+
+    ":dukat-modules:module-name-resolver",
+
+    ":dukat-modules:node-distribution",
+    ":dukat-modules:node-package",
+
+    ":dukat-modules:proto-kotlin-model",
+
+    ":dukat-modules:ts-ast-declarations",
+    ":dukat-modules:ts-converter",
+    ":dukat-modules:ts-lowerings",
+    ":dukat-modules:ts-model",
+    ":dukat-modules:ts-model-introduction",
+    ":dukat-modules:ts-model-proto",
+    ":dukat-modules:ts-nodes",
+    ":dukat-modules:ts-translator",
 )
-
-//project(':descriptors-1.4.0').projectDir = file("$rootDir/version-specific/descriptors-1.4.0")
-//
-//project(':graphs').projectDir = file("$rootDir/abstract/graphs")
-//project(':itertools').projectDir = file("$rootDir/abstract/itertools")
-//project(':toposort').projectDir = file("$rootDir/abstract/toposort")
-//
-//project(':idl-declarations').projectDir = file("$rootDir/idl/idl-declarations")
-//project(':idl-lowerings').projectDir = file("$rootDir/idl/idl-lowerings")
-//project(':idl-models').projectDir = file("$rootDir/idl/idl-models")
-//project(':idl-parser').projectDir = file("$rootDir/idl/idl-parser")
-//project(':idl-reference-resolver').projectDir = file("$rootDir/idl/idl-reference-resolver")
-//
-//project(':js-translator').projectDir = file("$rootDir/javascript/js-translator")
-//project(':js-type-analysis').projectDir = file("$rootDir/javascript/js-type-analysis")
-//
-//project(':kotlin-model-proto').projectDir = file("$rootDir/proto/kotlin-model-proto")
-//
-//project(':ts-ast-declarations').projectDir = file("$rootDir/typescript/ts-ast-declarations")
-//project(':ts-converter').projectDir = file("$rootDir/typescript/ts-converter")
-//project(':ts-lowerings').projectDir = file("$rootDir/typescript/ts-lowerings")
-//project(':ts-model').projectDir = file("$rootDir/typescript/ts-model")
-//project(':ts-model-proto').projectDir = file("$rootDir/typescript/ts-model-proto")
-//project(':ts-model-introduction').projectDir = file("$rootDir/typescript/ts-model-introduction")
-//project(':ts-translator').projectDir = file("$rootDir/typescript/ts-translator")
-//project(':ts-nodes').projectDir = file("$rootDir/typescript/ts-nodes")

@@ -1,6 +1,6 @@
 [versions]
 
-
+kotlin = "1.9.0"
 junitJupiter = "5.7.0"
 node = "18.12.1"
 defaultTs = "3.9.5"

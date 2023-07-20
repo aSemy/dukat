@@ -17,9 +17,9 @@ pluginManagement {
     eachPlugin {
       def pluginId = requested.id.id
       if (pluginId in kotlin_plugins) {
-        useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${gradle.kotlinVersion}")
+        useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
       } else if (pluginId == "kotlinx-serialization") {
-        useModule("org.jetbrains.kotlin:kotlin-serialization:${gradle.kotlinVersion}")
+        useModule("org.jetbrains.kotlin:kotlin-serialization:${libs.versions.kotlin.get()}")
       } else if (pluginId == 'com.google.protobuf') {
         useModule("com.google.protobuf:protobuf-gradle-plugin:${gradle.protobufGradlePluginVersion}")
       }
@@ -115,4 +115,3 @@ project(':ts-model-proto').projectDir = file("$rootDir/typescript/ts-model-proto
 project(':ts-model-introduction').projectDir = file("$rootDir/typescript/ts-model-introduction")
 project(':ts-translator').projectDir = file("$rootDir/typescript/ts-translator")
 project(':ts-nodes').projectDir = file("$rootDir/typescript/ts-nodes")
-

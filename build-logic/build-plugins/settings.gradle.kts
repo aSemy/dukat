@@ -15,4 +15,10 @@ dependencyResolutionManagement {
     mavenCentral()
     gradlePluginPortal()
   }
+
+  versionCatalogs {
+    register("lib") {
+      from(files("../../gradle/libs.versions.toml"))
+    }
+  }
 }
