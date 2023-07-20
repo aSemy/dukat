@@ -1,5 +1,5 @@
 plugins {
-    id("kotlin")
+    id("dukat.conventions.kotlin-jvm")
 }
 
 configurations {
@@ -33,4 +33,3 @@ task buildDistrib {
 }
 
 build.dependsOn = [buildDistrib]
-

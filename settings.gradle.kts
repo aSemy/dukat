@@ -129,6 +129,15 @@ include(
     ":dukat-modules:abstract-graphs",
     ":dukat-modules:abstract-itertools",
     ":dukat-modules:abstract-toposort",
+
+    ":dukat-modules:ast-common",
+    ":dukat-modules:ast-model",
+
+    ":dukat-modules:logging",
+    ":dukat-modules:panic",
+
+
+
 //  ":ast-common",
 //  ":ast-model",
 //  ":command-line",

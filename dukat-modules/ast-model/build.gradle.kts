@@ -2,7 +2,6 @@ plugins {
     id("dukat.conventions.kotlin-jvm")
 }
 
-
 dependencies {
-    implementation(project(":ast-common"))
+    implementation(projects.dukatModules.astCommon)
 }
