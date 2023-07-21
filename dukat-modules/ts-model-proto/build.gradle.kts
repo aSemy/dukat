@@ -1,44 +1,72 @@
-import org.gradle.internal.os.OperatingSystem
+import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
-    java
-    id( "com.google.protobuf") version "0.9.4"
+    id("dukat.conventions.protobuf-java")
+    id("dukat.conventions.node")
 }
 
-//def targetMainDir = "${project.buildDir}/generated/source/proto/main"
-//
-//def nodeModulesPath = "${project.buildDir}/ts-model-proto-npm"
-//
-//task prepareNpmPackage(type: Copy) {
-//    from "package.template.json"
-//    into nodeModulesPath
-//    rename { String fileName -> fileName.replace(".template", "") }
-//
-//    from "package-lock.json"
-//    into nodeModulesPath
+val targetMainDir: Provider<Directory> = layout.buildDirectory.dir("generated/src/proto/main")
+//val nodeModulesPath: Provider<Directory> = layout.buildDirectory.dir("ts-model-proto-npm")
+
+node {
+    nodeProjectDir.set(layout.buildDirectory.dir("ts-model-proto-npm"))
+}
+
+val prepareNpmPackage by tasks.registering(Copy::class) {
+    group = project.name
+    into(node.nodeProjectDir)
+    from("package.template.json") {
+        rename { it.replace(".template", "") }
+    }
+    from("package-lock.json")
+}
+
+tasks.withType<com.github.gradle.node.task.BaseTask>().configureEach {
+    dependsOn(prepareNpmPackage)
+}
+
+val npmCleanInstall by tasks.registering(NpmTask::class) {
+    group = project.name
+    args.addAll("clean-install")
+}
+
+protobuf {
+    languages {
+        register("js") {
+            options.addAll(
+                "import_style=commonjs",
+                "binary",
+            )
+        }
+        register("ts") {
+            plugin {
+                val protocGenTsPath = node.nodeProjectDir
+                    .zip(dukatBuild.currentOS) { nodeDir, currentOS ->
+                        val protocTsGenBin = if (currentOS.isWindows) "protoc-gen-ts.cmd" else "protoc-gen-ts"
+                        nodeDir.file("node_modules/ts-protoc-gen/bin/$protocTsGenBin").asFile
+                    }
+                path.set(protocGenTsPath)
+            }
+        }
+    }
+    protoc {
+        artifact.set(libs.protobuf.protoc.map { it.toString() })
+    }
+}
+
+dependencies {
+    api(libs.protobuf.java)
+}
+
+//tasks.generateProto {
+//    dependsOn(npmCleanInstall)
 //}
 //
-//task execConfig {
-//    doLast {
-//        installNpmDependencies.commandLine  project(":node-distrib").config.nodePath, project(":node-distrib").config.npmPath, "ci"
-//    }
-//}
-//
-//task installNpmDependencies(dependsOn: [prepareNpmPackage, execConfig, ":node-distrib:config"], type: Exec) {
-//    workingDir nodeModulesPath
-//    errorOutput = new ByteArrayOutputStream()
-//    ignoreExitValue true
-//
-//    doLast {
-//        if (execResult.exitValue > 0) {
-//            throw new GradleException(errorOutput.toString())
-//        }
-//    }
-//}
-//
-//task copyGeneratedTs(type: Copy) {
-//    from "$targetMainDir/ts"
-//    into "$targetMainDir/js"
+//val copyGeneratedTs by tasks.registering(Sync::class) {
+//    group = project.name
+//    into(targetMainDir.map { it.dir("js") })
+////    from(targetMainDir.map { it.dir("ts") })
+//    from(tasks.generateProto.map { it.outputBaseDir })
 //}
 //
 //dependencies {
@@ -46,53 +74,59 @@ plugins {
 //}
 //
 //sourceSets {
-//    generated {
-//        java.srcDir("$targetMainDir/java")
-//    }
-//
 //    main {
 //        proto {
-//            srcDirs = ["src"]
+////            setSrcDirs(listOf("src"))
 //        }
-//
 //        java {
-//            srcDirs = ["$targetMainDir/java"]
+//            setSrcDirs(
+//                listOf(
+////                tasks.generateProto.map { it.outputBaseDir },
+//                    targetMainDir.get().dir("java").asFile,
+//                )
+//            )
+////            setSrcDirs(listOf(targetMainDir.get().dir("java").asFile))
 //        }
 //    }
+////    create("generated") {
+////        java.setSrcDirs(listOf(targetMainDir.get().dir("java").asFile))
+////    }
 //}
 //
 //protobuf {
 //    plugins {
-//        ts {
-//            path = file("$nodeModulesPath/node_modules/ts-protoc-gen/bin/protoc-gen-ts")
+//        create("ts") {
+//            path = dukatBuild.currentOS.map { currentOS ->
+//                val ext = if (currentOS.isWindows) ".cmd" else ""
+//                "$buildDir/node_modules/ts-protoc-gen/bin/protoc-gen-ts$ext"
+//            }.get()
 //
-//            if (OperatingSystem.current().isWindows()) {
-//                path = path + ".cmd"
-//            }
+////            val protocGenTsPath = node.nodeProjectDir
+////                .map { it.dir("node_modules/ts-protoc-gen/bin/protoc-gen-ts").asFile.invariantSeparatorsPath }
+////                .zip(dukatBuild.currentOS) { protocGenTs, currentOS ->
+////                    val ext = if (currentOS.isWindows) ".cmd" else ""
+////                    protocGenTs + ext
+////                }
+////
+////            path = protocGenTsPath.get()
+//            println("set protobuf ts path to $path")
 //        }
 //    }
 //
-//    generateProtoTasks {
-//        all().each { task ->
-//            if(task.name == 'generateProto') {
-//                task.dependsOn = [installNpmDependencies]
-//                task.finalizedBy(copyGeneratedTs)
-//            }
-//
-//            task.builtins {
-//                js {
-//                    option "import_style=commonjs"
-//                    option "binary"
-//                }
-//            }
-//
-//            task.plugins {
-//                ts { }
+//    generateProtoTasks.all().configureEach {
+//        dependsOn(npmCleanInstall)
+//        builtins {
+//            create("js") {
+//                option("import_style=commonjs")
+//                option("binary")
 //            }
 //        }
-//    }
-//
-//    protoc {
-//        artifact = "com.google.protobuf:protoc:${libs.versions.protobufImplementation.get()}"
+//        plugins {
+//            create("ts") {
+//            }
+//        }
+//        protoc {
+//            artifact = "com.google.protobuf:protoc:${libs.versions.protobufImplementation.get()}"
+//        }
 //    }
 //}

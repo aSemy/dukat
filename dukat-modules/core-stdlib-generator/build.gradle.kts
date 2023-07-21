@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.dukatModules.coreTranslatorString)
     implementation(projects.dukatModules.coreStdlib)
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}")
+    implementation("com.squareup:kotlinpoet:1.14.2")
 //    implementation("com.squareup:kotlinpoet:1.6.0") {
 //        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
 //        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"

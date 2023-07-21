@@ -8,13 +8,16 @@ plugins {
     kotlin("jvm")
 }
 
-kotlin {
-    jvmToolchain(11)
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 sourceSets {
     main {
         kotlin.setSrcDirs(listOf("src"))
+        resources.setSrcDirs(listOf("resources"))
         java.setSrcDirs(emptyList<File>())
     }
     test {
@@ -28,9 +31,9 @@ sourceSets {
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
 //        jvmTarget.set(JvmTarget.JVM_1_8)
-        allWarningsAsErrors.set(true)
+        allWarningsAsErrors.set(false)
         freeCompilerArgs.addAll(
-            "-Xuse-experimental=kotlin.Experimental",
+//            "-Xuse-experimental=kotlin.Experimental",
         )
     }
 }

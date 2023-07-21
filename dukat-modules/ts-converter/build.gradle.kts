@@ -1,0 +1,100 @@
+plugins {
+  java
+}
+
+val packagePath = "${project.buildDir}/package"
+//val typescriptVersion = hasProperty("tsVersion") ? tsVersion : gradle.defaultTsVersion
+val tsDeclarationsPath = ".tsdeclarations"
+
+//task prepareNpmPackage(type: Copy) {
+//  from "package.template.json"
+//  into packagePath
+//  filter{ String line ->
+//    line.replaceAll("__TS_VERSION__", typescriptVersion)
+//            .replaceAll("__PROTOBUF_VERSION__", gradle.protobufImplementationVersion)
+//  }
+//  rename { String fileName -> fileName.replace(".template", "") }
+//}
+//
+//task execConfig {
+//  doLast {
+//    installNpmDependencies.commandLine  project(":node-distrib").config.nodePath, project(":node-distrib").config.npmPath, "install"
+//    webpack.commandLine project(":node-distrib").config.nodePath, "${project.buildDir}/package/node_modules/webpack/bin/webpack.js"
+//    compileTs.commandLine project(":node-distrib").config.nodePath, file("${packagePath}/node_modules/typescript/bin/tsc"), "-p", file("./tsconfig.json").path
+//  }
+//}
+//
+//task installNpmDependencies(dependsOn: [prepareNpmPackage, execConfig, ":node-distrib:config"], type: Exec) {
+//  workingDir packagePath
+//  errorOutput = new ByteArrayOutputStream()
+//  ignoreExitValue true
+//
+//  doLast {
+//    if (execResult.exitValue > 0) {
+//      throw new GradleException(errorOutput.toString())
+//    }
+//  }
+//}
+//
+//task copyTypescriptDeclarations(type: Copy) {
+//  dependsOn = [installNpmDependencies]
+//
+//  from "${packagePath}/node_modules/typescript/lib"
+//  into tsDeclarationsPath
+//  include "*.d.ts"
+//}
+//
+//task compileTs(type: Exec) {
+//  dependsOn = [execConfig, installNpmDependencies, copyTypescriptDeclarations, ":ts-model-proto:build"]
+//  workingDir project.projectDir
+//
+//  inputs.file("./tsconfig.json")
+//  inputs.dir("./src")
+//  inputs.dir(packagePath)
+//  outputs.dir("./build/ts")
+//}
+//
+//task webpack(type: Exec) {
+//  dependsOn = [compileTs, ":ts-model-proto:build", execConfig]
+//
+//  workingDir project.projectDir
+//  def scriptName = "${project.buildDir}/package/node_modules/webpack/bin/webpack.js"
+//
+//  inputs.file(scriptName)
+//  inputs.file("webpack.config.js")
+//  inputs.dir("${project(":ts-model-proto").buildDir}/generated/source/proto/main/js")
+//  inputs.dir("${project.buildDir}/ts")
+//  inputs.dir("${project.buildDir}/package/node_modules")
+//  outputs.file("${project.buildDir}/bundle/converter.js")
+//}
+//
+//task createJar(type: Zip) {
+//  dependsOn = [webpack]
+//  baseName 'dukatts'
+//  extension 'jar'
+//  destinationDir file("${project.buildDir}/jar")
+//
+//  from("${packagePath}/node_modules/typescript/lib/tsserverlibrary.js") {
+//    into 'ts'
+//  }
+//
+//  from("${packagePath}/node_modules/typescript/lib") {
+//    include "**/*.d.ts"
+//    into 'ts'
+//  }
+//
+//  from('build/bundle/converter.js') {
+//    into 'js'
+//  }
+//
+//}
+//
+//configurations {
+//  dukatTsResources
+//}
+//
+//configurations.default.extendsFrom(configurations.dukatTsResources)
+//
+//clean {
+//  delete tsDeclarationsPath
+//}

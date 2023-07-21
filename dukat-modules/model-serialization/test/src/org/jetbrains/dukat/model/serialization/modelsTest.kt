@@ -7,17 +7,31 @@ import java.io.File
 import kotlin.test.assertEquals
 
 class ModelsProtoTest {
+    private val kotlinStdlibJsJarPath = System.getenv()["kotlinStdlibJsJarPath"]
+        ?: error("missing kotlinStdlibJsJarPath")
+
     @Test
     fun test() {
-        val binary = serializeStdLib("../stdlib-generator/build/libs/kotlin-stdlib-js.jar")
+        val binary = serializeStdLib(kotlinStdlibJsJarPath)
         val sourceSetConverted = convertProtobufToModels(binary)
 
         val units = translateSourceSet(sourceSetConverted)
 
-        val contents = units.filterIsInstance(ModuleTranslationUnit::class.java).flatMap {
-            listOf("// --------- ${it.packageName} ---------", it.content)
-        }.joinToString(System.lineSeparator())
+        val contents = units
+            .filterIsInstance(ModuleTranslationUnit::class.java)
+            .flatMap { listOf("// --------- ${it.packageName} ---------", it.content) }
+            .joinToString(System.lineSeparator())
+            .trimEnd()
 
-        assertEquals(contents.trimEnd(), File("test/resources/code.out.kt").readText().trimEnd(), "De-serialized stdlib does not look like as expected")
+        File("build/test/actual.out.kt").apply {
+            parentFile.mkdirs()
+            writeText(contents)
+        }
+
+        assertEquals(
+            contents,
+            File("test/resources/code.out.kt").readText().trimEnd(),
+            "De-serialized stdlib does not look like as expected"
+        )
     }
 }

@@ -1,24 +1,24 @@
 rootProject.name = "build-plugins"
 
 pluginManagement {
-  repositories {
-    gradlePluginPortal()
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 
-  repositories {
-    mavenCentral()
-    gradlePluginPortal()
-  }
-
-  versionCatalogs {
-    register("lib") {
-      from(files("../../gradle/libs.versions.toml"))
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
     }
-  }
+
+    versionCatalogs {
+        register("libs") {
+            from(files("../../gradle/libs.versions.toml"))
+        }
+    }
 }

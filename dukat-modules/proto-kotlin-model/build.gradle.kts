@@ -1,14 +1,13 @@
 plugins {
-    java
     id("dukat.conventions.kotlin-jvm")
-    id( "com.google.protobuf") version "0.9.4"
+    id("dukat.conventions.protobuf-java")
 }
 
 val targetMainDir = "${project.buildDir}/generated/source/proto/main"
 
 dependencies {
-    implementation("com.google.protobuf:protobuf-java:${libs.versions.protobufImplementation.get()}")
-    compileOnly(projects.dukatModules.tsModelProto)
+    api(libs.protobuf.java)
+//    compileOnly(projects.dukatModules.tsModelProto)
 
     testImplementation(projects.dukatModules.astModel)
     testImplementation(projects.dukatModules.astCommon)
@@ -24,6 +23,28 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-params:${libs.versions.junitJupiter.get()}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${libs.versions.junitJupiter.get()}")
+
+    protobuf(projects.dukatModules.tsModelProto)
+}
+
+sourceSets {
+    main {
+        kotlin.setSrcDirs(listOf("src/main/kotlin"))
+        resources.setSrcDirs(listOf("src/main/resources"))
+        java.setSrcDirs(
+            listOf(
+                "src/main/java",
+                tasks.generateProto.flatMap { it.descriptorOutputPath },
+                tasks.generateProto.map { it.outputDirs.values },
+//                tasks.generateGrammarSource.map { it.outputDirectory },
+            )
+        )
+    }
+    test {
+        kotlin.setSrcDirs(listOf("src/test/kotlin"))
+        resources.setSrcDirs(listOf("src/test/resources"))
+        java.setSrcDirs(listOf("src/test/java"))
+    }
 }
 
 //sourceSets {
