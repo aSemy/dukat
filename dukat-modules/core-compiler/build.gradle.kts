@@ -1,21 +1,13 @@
+import dukat.utils.kotlinStdlibJsJarProvider
+
 plugins {
     id("dukat.conventions.kotlin-jvm")
     id("dukat.conventions.node")
+    id("dukat.conventions.download-definitely-typed")
     kotlin("plugin.serialization")
 }
 
-//configurations {
-//    toDownload
-//    kotlinJsLibs
-//}
-//
-//compileTestKotlin {
-//    kotlinOptions.jvmTarget = "1.8"
-//}
-//
-
 dependencies {
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 
     implementation(projects.dukatModules.astCommon)
@@ -43,10 +35,7 @@ dependencies {
     implementation(projects.dukatModules.tsModelIntroduction)
     implementation(projects.dukatModules.tsTranslator)
 
-    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-reflect")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-common")
     testImplementation("org.jetbrains.kotlin:kotlin-test-annotations-common")
@@ -61,15 +50,13 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
 
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${libs.versions.kotlinSerialization.get()}")
+    testImplementation(libs.kotlinxSerialization.core)
 
 //    compile(project(path: ":ts-converter", configuration: 'dukatTsResources'))
 
-//    kotlinJsLibs("org.jetbrains.kotlin:kotlin-stdlib-js:${libs.versions.kotlin.get()}")
-
-//    toDownload 'org.jetbrains.kotlin:kotlin-stdlib-js'
+    definitelyTypedSource("DefinitelyTyped:DefinitelyTyped:31929c09c7b4490f87766206b412da4a6a581dc3@zip")
 }
-//
+
 //def getTsDependency() {
 //    return zipTree(project(":ts-converter").getTasksByName("createJar", true).archivePath[0])
 //}
@@ -96,12 +83,6 @@ dependencies {
 //    rename "kotlin-stdlib-js-${libs.versions.kotlin.get()}.jar", "kotlin-stdlib-js.jar"
 //}
 //
-//task downloadDefinitelyTyped(type: Download) {
-//    onlyIfModified true
-//    overwrite false
-//    src "https://github.com/DefinitelyTyped/DefinitelyTyped/archive/${DEF_TYPE_CHANGESET}.zip"
-//    dest new File(rootProject.gradle.gradleUserHomeDir, "DefinitelyTyped-${DEF_TYPE_CHANGESET}.zip")
-//}
 //
 //task fetchDefinitelyTyped(dependsOn: downloadDefinitelyTyped, type: Copy) {
 //    onlyIf {
@@ -162,14 +143,26 @@ dependencies {
 //        ":node-package:buildDistrib"
 //]
 
-val DEF_TYPE_CHANGESET = "31929c09c7b4490f87766206b412da4a6a581dc3"
-val DEF_TYPE_DIR = "${rootProject.gradle.gradleUserHomeDir}/definitelyTyped/DefinitelyTyped-${DEF_TYPE_CHANGESET}/types"
+val definitelyTypedVersion = "31929c09c7b4490f87766206b412da4a6a581dc3"
+//val definitelyTypedDir = "${rootProject.gradle.gradleUserHomeDir}/definitelyTyped/DefinitelyTyped-${definitelyTypedVersion}/types"
 
-val TOPN_DIR = "${project.projectDir}/test/data/topN"
-val TOPN_TARGET_DIR = "${project.buildDir}/tests/topN"
+val topNDataDir = "${project.projectDir}/test/data/topN"
+val topNTargetDir = "${project.buildDir}/tests/topN"
 
+val kotlinStdlibJsJar: Provider<File> = kotlinStdlibJsJarProvider()
+
+val extractKotlinJsLib by tasks.registering(Sync::class) {
+    group = project.name
+    from(kotlinStdlibJsJar) {
+        rename { "kotlin-stdlib-js.jar" }
+    }
+    into(layout.buildDirectory.dir("kotlinHome"))
+}
 
 tasks.test {
+    dependsOn(extractKotlinJsLib)
+    inputs.file(extractKotlinJsLib)
+
     listOf(
         "dukat.test.extended",
         "dukat.test.extended.topn",
@@ -178,14 +171,16 @@ tasks.test {
         "dukat.test.emitTsDiagnostics",
         "dukat.test.descriptorCompilation",
         "dukat.test.typescriptDukat"
-    ).forEach { projectProp ->
-        if (project.hasProperty(projectProp)) {
-            systemProperty(projectProp, "true")
-        }
+    ).forEach { prop ->
+        systemProperty(prop, project.hasProperty(prop))
     }
 
-    systemProperty("dukat.test.resources.definitelyTyped", DEF_TYPE_DIR)
-    systemProperty("dukat.test.resources.topN", TOPN_TARGET_DIR)
+    val definitelyTypedDir = tasks.prepareDefinitelyTypedSource.map { it.destinationDir }
+    inputs.dir(definitelyTypedDir).withPropertyName("definitelyTypedDir")
+    doFirst {
+        systemProperty("dukat.test.resources.definitelyTyped", definitelyTypedDir.get().invariantSeparatorsPath)
+    }
+    systemProperty("dukat.test.resources.topN", topNTargetDir)
 
     // execute top-level classes in sequentially but their methods in parallel
     // see https://junit.org/junit5/docs/5.5.1/user-guide/index.html#writing-tests-parallel-execution

@@ -1,41 +1,48 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
-  java
+    java
+    id("dukat.conventions.node")
+}
+
+node {
+    download.set(true)
+    nodeProjectDir.set(layout.buildDirectory.dir("ts-converter-npm"))
+}
+
+val prepareNpmPackage by tasks.registering(Copy::class) {
+    group = project.name
+
+    val typescriptVersion = libs.versions.typescript.get()
+    inputs.property("typescriptVersion", typescriptVersion)
+    val protobufVersion = libs.versions.protobufImplementation.get()
+    inputs.property("protobufVersion", protobufVersion)
+
+    into(node.nodeProjectDir)
+    from("package.template.json") {
+        rename { "package.json" }
+        expand(
+            "TS_VERSION" to typescriptVersion,
+            "PROTOBUF_VERSION" to protobufVersion,
+        )
+    }
+    from("package-lock.json")
+    from("tsconfig.json")
+    from("webpack.config.js")
+}
+
+val npmCleanInstall by tasks.registering(NpmTask::class) {
+    group = project.name
+    args.addAll("clean-install")
+}
+
+tasks.withType<com.github.gradle.node.task.BaseTask>().configureEach {
+    dependsOn(prepareNpmPackage)
 }
 
 val packagePath = "${project.buildDir}/package"
-//val typescriptVersion = hasProperty("tsVersion") ? tsVersion : gradle.defaultTsVersion
 val tsDeclarationsPath = ".tsdeclarations"
 
-//task prepareNpmPackage(type: Copy) {
-//  from "package.template.json"
-//  into packagePath
-//  filter{ String line ->
-//    line.replaceAll("__TS_VERSION__", typescriptVersion)
-//            .replaceAll("__PROTOBUF_VERSION__", gradle.protobufImplementationVersion)
-//  }
-//  rename { String fileName -> fileName.replace(".template", "") }
-//}
-//
-//task execConfig {
-//  doLast {
-//    installNpmDependencies.commandLine  project(":node-distrib").config.nodePath, project(":node-distrib").config.npmPath, "install"
-//    webpack.commandLine project(":node-distrib").config.nodePath, "${project.buildDir}/package/node_modules/webpack/bin/webpack.js"
-//    compileTs.commandLine project(":node-distrib").config.nodePath, file("${packagePath}/node_modules/typescript/bin/tsc"), "-p", file("./tsconfig.json").path
-//  }
-//}
-//
-//task installNpmDependencies(dependsOn: [prepareNpmPackage, execConfig, ":node-distrib:config"], type: Exec) {
-//  workingDir packagePath
-//  errorOutput = new ByteArrayOutputStream()
-//  ignoreExitValue true
-//
-//  doLast {
-//    if (execResult.exitValue > 0) {
-//      throw new GradleException(errorOutput.toString())
-//    }
-//  }
-//}
-//
 //task copyTypescriptDeclarations(type: Copy) {
 //  dependsOn = [installNpmDependencies]
 //
@@ -46,6 +53,7 @@ val tsDeclarationsPath = ".tsdeclarations"
 //
 //task compileTs(type: Exec) {
 //  dependsOn = [execConfig, installNpmDependencies, copyTypescriptDeclarations, ":ts-model-proto:build"]
+//  commandLine project(":node-distrib").config.nodePath, file("${packagePath}/node_modules/typescript/bin/tsc"), "-p", file("./tsconfig.json").path
 //  workingDir project.projectDir
 //
 //  inputs.file("./tsconfig.json")
@@ -53,8 +61,44 @@ val tsDeclarationsPath = ".tsdeclarations"
 //  inputs.dir(packagePath)
 //  outputs.dir("./build/ts")
 //}
-//
+
+val compileTypeScript by tasks.registering(Exec::class) {
+    dependsOn(npmCleanInstall)
+    workingDir(node.nodeProjectDir)
+
+    val nodePath = tasks.npmSetup.map { it.npmDir.get().file("bin/node").asFile.invariantSeparatorsPath }
+    inputs.property("nodePath", nodePath)
+    val tsc = node.nodeProjectDir.map { it.file("node_modules/typescript/bin/tsc").asFile.invariantSeparatorsPath }
+    inputs.property("tsc", tsc)
+    val tsconfigJson = layout.projectDirectory.file("tsconfig.json").asFile.invariantSeparatorsPath
+    inputs.property("tsconfigJson", tsconfigJson)
+    doFirst {
+        commandLine(nodePath.get(), tsc.get(), "-p", tsconfigJson )
+    }
+    //    compileTs.commandLine project(":node-distrib").config.nodePath, file("${packagePath}/node_modules/typescript/bin/tsc"), "-p", file("./tsconfig.json").path
+//    script.set(node.nodeProjectDir.file("node_modules/typescript/bin/tsc"))
+//    args.addAll("-p", "tsconfig.json")
+//    args.addAll("tsc", "-p", "tsconfig.json")
+//    args.addAll("node_modules/typescript/bin/tsc", "-p", "tsconfig.json")
+}
+
+val tsModelProtoTSDeclarations by tasks.registering(Sync::class) {
+    group = project.name
+    from(node.nodeProjectDir) {
+        include("**/*.d.ts")
+    }
+    into(temporaryDir)
+}
+
+//configurations.tsModelProtoElements {
+//    outgoing {
+//        this.artifacts()
+//artifact(tsModelProtoTSDeclarations)
+//    }
+//}
+
 //task webpack(type: Exec) {
+//  commandLine project(":node-distrib").config.nodePath, "${project.buildDir}/package/node_modules/webpack/bin/webpack.js"
 //  dependsOn = [compileTs, ":ts-model-proto:build", execConfig]
 //
 //  workingDir project.projectDir

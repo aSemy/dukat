@@ -1,5 +1,5 @@
 {
-  "name": "dukat-ts-distrib",
+  "name": "dukat-ts-distribution",
   "private": true,
   "version": "0.0.0",
   "description": "This is non-public package the only purpose of which is to build ts-related part of dukat project",
@@ -8,8 +8,8 @@
   },
   "author": "",
   "dependencies": {
-    "typescript": "__TS_VERSION__",
-    "google-protobuf": "__PROTOBUF_VERSION__",
+    "typescript": "${TS_VERSION}",
+    "google-protobuf": "${PROTOBUF_VERSION}",
     "webpack": "5.75.0",
     "webpack-cli": "5.0.1",
     "@types/node": "12.7.1"

@@ -13,7 +13,7 @@ plugins {
 
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${libs.versions.kotlinSerialization.get()}")
+    implementation(libs.kotlinxSerialization.core)
 
     implementation(projects.dukatModules.astCommon)
     implementation(projects.dukatModules.astModel)

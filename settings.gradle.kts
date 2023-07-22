@@ -1,31 +1,19 @@
+import dukat.settings.utils.*
+
 rootProject.name = "dukat"
 
 pluginManagement {
     includeBuild("build-logic/build-plugins")
+    includeBuild("build-logic/settings-plugins")
     repositories {
         mavenCentral()
         gradlePluginPortal()
-//    jcenter()
-//    maven("https://dl.bintray.com/kotlin/kotlin-eap")
-//    maven("https://cache-redirector.jetbrains.com/jcenter.bintray.com")
     }
-
-//  resolutionStrategy {
-//    def kotlin_plugins =["kotlin2js", "kotlin", "kotlin-multiplatform"]
-//
-//    eachPlugin {
-//      def pluginId = requested . id . id
-//          if (pluginId in kotlin_plugins) {
-//            useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
-//          } else if (pluginId == "kotlinx-serialization") {
-//            useModule("org.jetbrains.kotlin:kotlin-serialization:${libs.versions.kotlin.get()}")
-//          } else if (pluginId == 'com.google.protobuf') {
-//            useModule("com.google.protobuf:protobuf-gradle-plugin:${gradle.protobufGradlePluginVersion}")
-//          }
-//    }
-//  }
 }
 
+plugins {
+    id("dukat.settings.conventions.base")
+}
 
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
@@ -35,95 +23,17 @@ dependencyResolutionManagement {
         mavenCentral()
 
         // Declare the Node.js & Yarn download repositories
-        exclusiveContent {
-            forRepository {
-                ivy("https://nodejs.org/dist/") {
-                    name = "Node Distributions at $url"
-                    patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
-                    metadataSources { artifact() }
-                    content { includeModule("org.nodejs", "node") }
-                }
-            }
-            filter { includeGroup("org.nodejs") }
-        }
+        nodeJsDistribution()
+        yarnDistribution()
 
-        exclusiveContent {
-            forRepository {
-                ivy("https://github.com/yarnpkg/yarn/releases/download") {
-                    name = "Yarn Distributions at $url"
-                    patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
-                    metadataSources { artifact() }
-                    content { includeModule("com.yarnpkg", "yarn") }
-                }
-            }
-            filter { includeGroup("com.yarnpkg") }
-        }
-
-        // workaround for https://youtrack.jetbrains.com/issue/KT-51379
-        exclusiveContent {
-            forRepository {
-                ivy("https://download.jetbrains.com/kotlin/native/builds") {
-                    name = "Kotlin Native"
-                    patternLayout {
-
-                        // example download URLs:
-                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/linux-x86_64/kotlin-native-prebuilt-linux-x86_64-1.7.20.tar.gz
-                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/windows-x86_64/kotlin-native-prebuilt-windows-x86_64-1.7.20.zip
-                        // https://download.jetbrains.com/kotlin/native/builds/releases/1.7.20/macos-x86_64/kotlin-native-prebuilt-macos-x86_64-1.7.20.tar.gz
-                        listOf(
-                            "macos-x86_64",
-                            "macos-aarch64",
-                            "osx-x86_64",
-                            "osx-aarch64",
-                            "linux-x86_64",
-                            "windows-x86_64"
-                        ).forEach { os ->
-                            listOf("dev", "releases").forEach { stage ->
-                                artifact("$stage/[revision]/$os/[artifact]-[revision].[ext]")
-                            }
-                        }
-                    }
-                    metadataSources { artifact() }
-                }
-            }
-            filter { includeModuleByRegex(".*", ".*kotlin-native-prebuilt.*") }
-        }
-
-        maven("https://s01.oss.sonatype.org/content/repositories/snapshots") {
-            name = "SonatypeSnapshots"
-            mavenContent {
-                snapshotsOnly()
-            }
-        }
+        kotlinNativeBinaries()
+        mavenCentralSnapshots()
+        gitHubReleases()
     }
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
-
-
-//def buildLog (message) {
-//  println("[BUILD] ${message}")
-//}
-
-//gradle.ext {
-//  try {
-//    //TODO: for some reason hasProperty is not working for me
-//    kotlinVersion = getProperty("dukatKotlinVersion")
-//  } catch (e) {
-//    kotlinVersion = "1.4.30"
-//  }
-//
-//  jupiterVersion = "5.7.0"
-//  nodeVersion = "18.12.1" // LTS
-//  defaultTsVersion = "3.9.5"
-//  defaultNpmPackageVersion = "0.5.8-rc.5"
-//  kotlinSerializationVersion = "1.0.0-RC"
-//  antlr4_version = "4.7.1"
-//  protobufGradlePluginVersion = "0.8.13"
-//  protobufImplementationVersion = "3.20.1"
-//}
-//buildLog("gradle settings properties: ${gradle.ext.properties}")
 
 include(
     ":dukat-modules:abstract-graphs",

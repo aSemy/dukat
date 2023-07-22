@@ -1,4 +1,5 @@
 import dukat.utils.asConsumer
+import dukat.utils.kotlinStdlibJsJarProvider
 import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
@@ -26,29 +27,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${libs.versions.junitJupiter.get()}")
 }
 
-val kotlinStdJsCollector by configurations.registering {
-    asConsumer()
-    withDependencies {
-        add(
-            project.dependencies.create(
-                "org.jetbrains.kotlin:kotlin-stdlib-js:${libs.versions.kotlin.get()}"
-            )
-        )
-    }
-}
-
-val kotlinStdlibJsJar: Provider<File> =
-    kotlinStdJsCollector.map { deps ->
-        deps.incoming
-            .artifactView {
-                componentFilter { id ->
-                    id is ModuleComponentIdentifier && id.module == "kotlin-stdlib-js"
-                }
-            }
-            .artifacts
-            .artifactFiles
-            .singleFile
-    }
+val kotlinStdlibJsJar: Provider<File> = kotlinStdlibJsJarProvider()
 
 val serializeStdLib by tasks.registering(JavaExec::class) {
     description = "Serialize and save Kotlin stdlib"

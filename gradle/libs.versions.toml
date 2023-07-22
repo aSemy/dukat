@@ -3,13 +3,12 @@
 kotlin = "1.9.0"
 junitJupiter = "5.7.0"
 node = "18.12.1"
-defaultTs = "3.9.5"
-defaultNpmPackage = "0.5.8-rc.5"
-kotlinSerialization = "1.0.0-RC" # TODO remove kotlinSerialization version, replace with kotlinxSerialization
+typescript = "3.9.5"
+npmPackage = "0.5.8-rc.5"
 kotlinxSerialization = "1.0.0-RC"
 antlr4 = "4.7.1"
 protobufGradlePlugin = "0.8.13"
-protobufImplementation = "3.20.3"
+protobufImplementation = "3.21.2"
 
 [libraries]
 
@@ -20,3 +19,4 @@ protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "p
 kotlinxSerialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 
 kotlin-stdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }
+kotlin-compilerEmbeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
